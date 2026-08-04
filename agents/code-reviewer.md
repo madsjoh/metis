@@ -2,7 +2,7 @@
 name: code-reviewer
 description: Review code for best practices and find potential issues.
 mode: subagent
-model: github-copilot/gpt-5.6-sol # https://models.dev/providers/github-copilot/
+model: __REVIEW_MODEL__
 temperature: 0.2
 tools:
     write: false

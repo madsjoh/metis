@@ -9,7 +9,7 @@
     # obra/superpowers: A complete software development workflow for coding agents.
     # https://github.com/obra/superpowers
     superpowers = {
-      url = "github:obra/superpowers/v4.3.1";
+      url = "github:obra/superpowers/v6.2.0";
       flake = false;
     };
 
@@ -58,10 +58,14 @@
       build =
         {
           pkgs,
-          mattPocockSkillsSource ? sources.matt-pocock-skills,
+          models ? {
+            primary = "opencode/gpt-5.1-codex";
+            review = "opencode/gpt-5.1-codex";
+            lightweight = "opencode/gpt-5.1-codex";
+          },
         }:
         import ./default.nix {
-          inherit pkgs sources mattPocockSkillsSource;
+          inherit pkgs sources models;
           basePath = self;
         };
     in
@@ -71,13 +75,42 @@
       homeManagerModules.default = { config, lib, pkgs, ... }:
         let
           cfg = config.metis;
+          defaultModels = {
+            primary = "opencode/gpt-5.1-codex";
+            review = "opencode/gpt-5.1-codex";
+            lightweight = "opencode/gpt-5.1-codex";
+          };
+          models = defaultModels // (cfg.opencode.models or {});
           rendered = pkgs.callPackage ./dump.nix {
             inherit pkgs;
-            settings = build { inherit pkgs; };
+            settings = build { inherit pkgs models; };
           };
         in
         {
           options.metis.opencode.enable = lib.mkEnableOption "configure opencode with metis skills, agents, and commands";
+          options.metis.opencode.models = lib.mkOption {
+            type = with lib.types; submodule {
+              options = {
+                primary = lib.mkOption {
+                  type = str;
+                  default = "opencode/gpt-5.1-codex";
+                  description = "Model for primary agents (builder, planner).";
+                };
+                review = lib.mkOption {
+                  type = str;
+                  default = "opencode/gpt-5.1-codex";
+                  description = "Model for review agents (code-reviewer, security-auditor, technical-writer).";
+                };
+                lightweight = lib.mkOption {
+                  type = str;
+                  default = "opencode/gpt-5.1-codex";
+                  description = "Model for lightweight agents (chicken, explorer).";
+                };
+              };
+            };
+            default = {};
+            description = "Model configuration for Metis agents.";
+          };
           options.metis.claude.enable = lib.mkEnableOption "configure Claude Code with metis skills, agents, and commands";
           options.metis.codex.enable = lib.mkEnableOption "configure Codex with metis skills, agents, and commands";
 
@@ -88,6 +121,7 @@
                 ".config/opencode/agents".source = "${rendered}/agents";
                 ".config/opencode/commands".source = "${rendered}/commands";
                 ".config/opencode/skills".source = "${rendered}/skills";
+                ".config/opencode/plugins".source = "${rendered}/plugins";
               };
             })
             (lib.mkIf cfg.claude.enable {

@@ -2,7 +2,7 @@
 name: technical-writer
 description: Write and maintain documentation.
 mode: subagent
-model: github-copilot/gpt-5.6-sol # https://models.dev/providers/github-copilot/
+model: __REVIEW_MODEL__
 temperature: 0.2
 tools:
     write: true

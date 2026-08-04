@@ -2,7 +2,11 @@
   pkgs,
   basePath,
   sources,
-  mattPocockSkillsSource ? sources.matt-pocock-skills,
+  models ? {
+    primary = "opencode/gpt-5.1-codex";
+    review = "opencode/gpt-5.1-codex";
+    lightweight = "opencode/gpt-5.1-codex";
+  },
 }:
 let
   discoverDirectorySkills =
@@ -21,21 +25,20 @@ let
   # https://github.com/anthropics/skills
   anthropicSkillsSrc = sources.anthropic-skills;
 
-  # mattpocock/skills: Skills for real software engineering.
-  # https://github.com/mattpocock/skills
-  mattPocockSkills =
-    discoverDirectorySkills (mattPocockSkillsSource + "/skills/engineering")
-    // discoverDirectorySkills (mattPocockSkillsSource + "/skills/productivity");
-
   # vercel-labs/skills: Open agent skills ecosystem.
   # https://github.com/vercel-labs/skills
   vercelSkillsSrc = sources.vercel-skills;
 in
 {
   inherit anthropicSkillsSrc;
-  inherit mattPocockSkills;
   inherit superpowersSrc;
   inherit vercelSkillsSrc;
+
+  inherit models;
+
+  # The superpowers plugin automatically registers the skills directory and injects the
+  # using-superpowers bootstrap with tool mapping into every session.
+  superpowersPlugin = superpowersSrc + "/.opencode/plugins/superpowers.js";
 
   # Shared global instructions rendered to each agent's user level rules file.
   # opencode renders this to AGENTS.md and claude-code renders it to CLAUDE.md.
@@ -63,10 +66,7 @@ in
         pkgs.lib.filterAttrs (name: type: type == "regular" && pkgs.lib.hasSuffix ".md" name) (
           builtins.readDir agentsDir
         )
-      )
-    // {
-      superpowers-code-reviewer = "${superpowersSrc}/agents/code-reviewer.md";
-    };
+      );
 
   commands =
     let
@@ -78,16 +78,12 @@ in
         pkgs.lib.filterAttrs (name: type: type == "regular" && pkgs.lib.hasSuffix ".md" name) (
           builtins.readDir commandsDir
         )
-      )
-    // {
-      brainstorm = "${superpowersSrc}/commands/brainstorm.md";
-      execute-plan = "${superpowersSrc}/commands/execute-plan.md";
-      write-plan = "${superpowersSrc}/commands/write-plan.md";
-    };
+      );
 
   skills =
     let
       skillsDir = basePath + "/skills";
+      superpowersSkills = discoverDirectorySkills (superpowersSrc + "/skills");
       localSkills =
         # Auto-discover both flat single-file skills (`<name>.md`) and directory
         # skills (`<name>/SKILL.md` plus optional `references/` for progressive
@@ -109,5 +105,5 @@ in
             ) (builtins.readDir skillsDir)
           );
     in
-    mattPocockSkills // localSkills;
+    superpowersSkills // localSkills;
 }

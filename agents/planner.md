@@ -2,7 +2,7 @@
 name: planner
 description: Research codebases deeply and write detailed implementation plans without modifying source code.
 mode: primary
-model: github-copilot/gpt-5.6-luna # https://models.dev/providers/github-copilot/
+model: __PRIMARY_MODEL__
 temperature: 0.1
 tools:
     write: true

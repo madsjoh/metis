@@ -2,7 +2,7 @@
 name: explorer
 description: Explore and search source code.
 mode: subagent
-model: github-copilot/gpt-5.6-terra # https://models.dev/providers/github-copilot/
+model: __LIGHTWEIGHT_MODEL__
 temperature: 0.1
 tools:
     write: false
