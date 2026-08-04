@@ -17,15 +17,13 @@ set -o pipefail
 REPOSITORY_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 NIX_IMAGE="nixos/nix:latest"
 OUTPUT_DIRECTORY="${REPOSITORY_ROOT}/generated"
-EVALUATION_SYSTEM="${EVALUATION_SYSTEM:-aarch64-linux}"
-
 # The body runs inside either the host shell or the container. It expects NIX,
-# FLAKE_REFERENCE, TARGET_DIRECTORY, and EVALUATION_SYSTEM to be set.
+# FLAKE_REFERENCE, and TARGET_DIRECTORY to be set.
 run_dump() {
     SETTINGS_EXPRESSION="
         let
           flake = builtins.getFlake \"${FLAKE_REFERENCE}\";
-          pkgs = flake.inputs.nixpkgs.legacyPackages.${EVALUATION_SYSTEM};
+          pkgs = flake.inputs.nixpkgs.legacyPackages.\${builtins.currentSystem};
         in
           flake.lib.mkSettings { inherit pkgs; }
     "
@@ -56,7 +54,7 @@ run_dump() {
     RENDERED_PATH=$(${NIX} build --impure --no-link --print-out-paths --expr "
         let
           flake = builtins.getFlake \"${FLAKE_REFERENCE}\";
-          pkgs = flake.inputs.nixpkgs.legacyPackages.${EVALUATION_SYSTEM};
+          pkgs = flake.inputs.nixpkgs.legacyPackages.\${builtins.currentSystem};
           settings = flake.lib.mkSettings { inherit pkgs; };
         in
           import ${FLAKE_SOURCE}/dump.nix { inherit pkgs settings; }
@@ -87,7 +85,6 @@ fi
 docker run --rm \
     --volume "${REPOSITORY_ROOT}":/work \
     --workdir /work \
-    --env "EVALUATION_SYSTEM=${EVALUATION_SYSTEM}" \
     "${NIX_IMAGE}" \
     sh -c "
         set -eu
