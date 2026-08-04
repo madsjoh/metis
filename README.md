@@ -21,9 +21,18 @@ Wire the returned settings into a home-manager module.
 
 ```nix
 # home.nix
+{
+  metis.opencode.enable = true;
+}
+```
+
+Or use the low-level builder.
+
+```nix
+# home.nix
 { pkgs, inputs, ... }:
 let
-  settings = inputs.metis.lib.mkSettings { inherit pkgs; };
+  settings = inputs.metis.lib.build { inherit pkgs; };
 in
 {
   programs.claude-code = {
@@ -36,11 +45,11 @@ in
 }
 ```
 
-The same settings apply to `programs.opencode`, which reads the identical attribute set.
+The same settings apply to `opencode`, which reads the identical attribute set.
 
 ## Overview
 
-Metis exposes a single builder function through its flake `lib`. The function discovers the local skills, commands, and agents, merges them with pinned upstream sources, and returns an attribute set ready to feed into a home-manager program module.
+Metis exposes a home-manager module (`metis.opencode.enable = true`) and a builder function through its flake `lib`. The builder discovers the local skills, commands, and agents, merges them with pinned upstream sources, and returns an attribute set ready to feed into a home-manager program module.
 
 ## Contents
 
@@ -53,7 +62,7 @@ Metis exposes a single builder function through its flake `lib`. The function di
 
 ## Function Reference
 
-`mkSettings` accepts these arguments.
+`lib.build` accepts these arguments.
 
 | Argument | Description |
 | --- | --- |

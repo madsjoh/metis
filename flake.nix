@@ -55,7 +55,7 @@
           ;
       };
 
-      mkSettings =
+      build =
         {
           pkgs,
           mattPocockSkillsSource ? sources.matt-pocock-skills,
@@ -66,7 +66,48 @@
         };
     in
     {
-      lib.mkSettings = mkSettings;
+      lib.build = build;
+
+      homeManagerModules.default = { config, lib, pkgs, ... }:
+        let
+          cfg = config.metis;
+          rendered = pkgs.callPackage ./dump.nix {
+            inherit pkgs;
+            settings = build { inherit pkgs; };
+          };
+        in
+        {
+          options.metis.opencode.enable = lib.mkEnableOption "configure opencode with metis skills, agents, and commands";
+          options.metis.claude.enable = lib.mkEnableOption "configure Claude Code with metis skills, agents, and commands";
+          options.metis.codex.enable = lib.mkEnableOption "configure Codex with metis skills, agents, and commands";
+
+          config = lib.mkMerge [
+            (lib.mkIf cfg.opencode.enable {
+              home.file = {
+                ".config/opencode/AGENTS.md".source = "${rendered}/context.md";
+                ".config/opencode/agents".source = "${rendered}/agents";
+                ".config/opencode/commands".source = "${rendered}/commands";
+                ".config/opencode/skills".source = "${rendered}/skills";
+              };
+            })
+            (lib.mkIf cfg.claude.enable {
+              home.file = {
+                ".claude/CLAUDE.md".source = "${rendered}/context.md";
+                ".claude/agents".source = "${rendered}/agents";
+                ".claude/commands".source = "${rendered}/commands";
+                ".claude/skills".source = "${rendered}/skills";
+              };
+            })
+            (lib.mkIf cfg.codex.enable {
+              home.file = {
+                ".codex/AGENTS.md".source = "${rendered}/context.md";
+                ".codex/agents".source = "${rendered}/agents";
+                ".codex/commands".source = "${rendered}/commands";
+                ".codex/skills".source = "${rendered}/skills";
+              };
+            })
+          ];
+        };
     }
     # nixpkgs-unstable has dropped x86_64-darwin, so it is excluded here.
     //
@@ -80,7 +121,7 @@
           system:
           let
             pkgs = nixpkgs.legacyPackages.${system};
-            settings = mkSettings { inherit pkgs; };
+            settings = build { inherit pkgs; };
           in
           {
             # Bundle the tool packages so `nix build` and `nix flake check` have a

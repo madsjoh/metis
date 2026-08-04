@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Dump the generated files produced by mkSettings.
+# Dump the generated files produced by lib.build.
 #
 # This script performs three actions.
 #   1. List the attribute names for agents, commands, and skills.
@@ -25,7 +25,7 @@ run_dump() {
           flake = builtins.getFlake \"${FLAKE_REFERENCE}\";
           pkgs = flake.inputs.nixpkgs.legacyPackages.\${builtins.currentSystem};
         in
-          flake.lib.mkSettings { inherit pkgs; }
+          flake.lib.build { inherit pkgs; }
     "
 
     echo "===== attribute names ====="
