@@ -1,0 +1,6 @@
+# Materialized output from scripts/dump.sh.
+/generated/
+
+# Nix build result symlinks.
+/result
+/result-*
