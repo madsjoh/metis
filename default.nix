@@ -58,7 +58,7 @@ in
 
   agents =
     let
-      agentsDir = basePath + "/agents";
+      agentsDir = basePath + "/core/agents";
     in
     pkgs.lib.mapAttrs'
       (name: _: pkgs.lib.nameValuePair (pkgs.lib.removeSuffix ".md" name) (agentsDir + "/${name}"))
@@ -70,7 +70,7 @@ in
 
   commands =
     let
-      commandsDir = basePath + "/commands";
+      commandsDir = basePath + "/core/commands";
     in
     pkgs.lib.mapAttrs'
       (name: _: pkgs.lib.nameValuePair (pkgs.lib.removeSuffix ".md" name) (commandsDir + "/${name}"))
@@ -91,7 +91,7 @@ in
   # and copies a directory recursively.
   coreSkills =
     let
-      skillsDir = basePath + "/skills";
+      skillsDir = basePath + "/core/skills";
     in
     pkgs.lib.mapAttrs'
       (

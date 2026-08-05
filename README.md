@@ -68,9 +68,9 @@ Metis exposes a home-manager module (`metis.opencode.enable = true`) and a build
 
 | Path | Description |
 | --- | --- |
-| `skills/` | Directory skills in `SKILL.md` format. |
-| `commands/` | Slash command definitions. |
-| `agents/` | Agent definitions. |
+| `core/skills/` | First-party directory skills in `SKILL.md` format. |
+| `core/commands/` | First-party slash command definitions. |
+| `core/agents/` | First-party agent definitions. |
 | `context.md` | Shared global instructions rendered to `AGENTS.md` or `CLAUDE.md`. |
 
 ## Function Reference
