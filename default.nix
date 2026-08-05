@@ -2,9 +2,6 @@
   pkgs,
   basePath,
   sources,
-  models ? {
-    primary = "opencode/gpt-5.1-codex";
-  },
 }:
 let
   discoverDirectorySkills =
@@ -37,8 +34,6 @@ in
   inherit superpowersSrc;
   inherit vercelSkillsSrc;
 
-  inherit models;
-
   # The superpowers plugin automatically registers the skills directory and injects the
   # using-superpowers bootstrap with tool mapping into every session.
   superpowersPlugin = superpowersSrc + "/.opencode/plugins/superpowers.js";
@@ -63,13 +58,16 @@ in
     let
       agentsDir = basePath + "/core/agents";
     in
-    pkgs.lib.mapAttrs'
-      (name: _: pkgs.lib.nameValuePair (pkgs.lib.removeSuffix ".md" name) (agentsDir + "/${name}"))
-      (
-        pkgs.lib.filterAttrs (name: type: type == "regular" && pkgs.lib.hasSuffix ".md" name) (
-          builtins.readDir agentsDir
+    if builtins.pathExists agentsDir then
+      pkgs.lib.mapAttrs'
+        (name: _: pkgs.lib.nameValuePair (pkgs.lib.removeSuffix ".md" name) (agentsDir + "/${name}"))
+        (
+          pkgs.lib.filterAttrs (name: type: type == "regular" && pkgs.lib.hasSuffix ".md" name) (
+            builtins.readDir agentsDir
+          )
         )
-      );
+    else
+      { };
 
   commands =
     let

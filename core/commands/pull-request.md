@@ -1,7 +1,6 @@
 ---
 name: pull-request
-description: Create or update pull request with proper message.
-agent: builder
+description: Create or update pull request with proper message
 ---
 
 # Create or Update Pull Request

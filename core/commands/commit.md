@@ -1,7 +1,6 @@
 ---
 name: commit
-description: Commit changes with proper message.
-agent: builder
+description: Commit changes with proper message
 ---
 
 # Commit
