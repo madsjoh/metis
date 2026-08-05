@@ -60,8 +60,6 @@
           pkgs,
           models ? {
             primary = "opencode/gpt-5.1-codex";
-            review = "opencode/gpt-5.1-codex";
-            lightweight = "opencode/gpt-5.1-codex";
           },
         }:
         import ./default.nix {
@@ -83,23 +81,24 @@
           cfg = config.metis;
           defaultModels = {
             primary = "opencode/gpt-5.1-codex";
-            review = "opencode/gpt-5.1-codex";
-            lightweight = "opencode/gpt-5.1-codex";
           };
           models = defaultModels // (cfg.opencode.core.models or { });
           rendered = pkgs.callPackage ./dump.nix {
             inherit pkgs;
             settings = build { inherit pkgs models; };
-            includeSuperpowers = cfg.opencode.superpowers.enable;
-            includeCore = cfg.opencode.core.enable;
+            includeAnthropicSkills = cfg.opencode.anthropicSkills.enable;
+            includeMattPocockSkills = cfg.opencode.mattPocockSkills.enable;
+            includeVercelSkills = cfg.opencode.vercelSkills.enable;
           };
         in
         {
           options.metis.opencode.enable = lib.mkEnableOption "configure opencode with metis skills, agents, and commands";
-          options.metis.opencode.superpowers.enable =
-            lib.mkEnableOption "install the upstream superpowers skills and plugin";
-          options.metis.opencode.core.enable =
-            lib.mkEnableOption "install the first-party metis agents, commands, skills, and context";
+          options.metis.opencode.anthropicSkills.enable =
+            lib.mkEnableOption "install the anthropic leaf skills on top of the superpowers spine";
+          options.metis.opencode.mattPocockSkills.enable =
+            lib.mkEnableOption "install the matt-pocock leaf skills on top of the superpowers spine";
+          options.metis.opencode.vercelSkills.enable =
+            lib.mkEnableOption "install the vercel leaf skills on top of the superpowers spine";
           options.metis.opencode.core.models = lib.mkOption {
             type =
               with lib.types;
@@ -108,41 +107,25 @@
                   primary = lib.mkOption {
                     type = str;
                     default = "opencode/gpt-5.1-codex";
-                    description = "Model for primary agents (builder, planner).";
-                  };
-                  review = lib.mkOption {
-                    type = str;
-                    default = "opencode/gpt-5.1-codex";
-                    description = "Model for review agents (code-reviewer, security-auditor, technical-writer).";
-                  };
-                  lightweight = lib.mkOption {
-                    type = str;
-                    default = "opencode/gpt-5.1-codex";
-                    description = "Model for lightweight agents (chicken, explorer).";
+                    description = "Model for the builder agent.";
                   };
                 };
               };
             default = { };
-            description = "Model configuration for the first-party metis agents.";
+            description = "Model configuration for the builder agent.";
           };
           options.metis.claude.enable = lib.mkEnableOption "configure Claude Code with metis skills, agents, and commands";
           options.metis.codex.enable = lib.mkEnableOption "configure Codex with metis skills, agents, and commands";
 
           config = lib.mkMerge [
             (lib.mkIf cfg.opencode.enable {
-              home.file = lib.mkMerge [
-                {
-                  ".config/opencode/skills".source = "${rendered}/skills";
-                }
-                (lib.mkIf cfg.opencode.core.enable {
-                  ".config/opencode/AGENTS.md".source = "${rendered}/context.md";
-                  ".config/opencode/agents".source = "${rendered}/agents";
-                  ".config/opencode/commands".source = "${rendered}/commands";
-                })
-                (lib.mkIf cfg.opencode.superpowers.enable {
-                  ".config/opencode/plugins".source = "${rendered}/plugins";
-                })
-              ];
+              home.file = {
+                ".config/opencode/AGENTS.md".source = "${rendered}/context.md";
+                ".config/opencode/agents".source = "${rendered}/agents";
+                ".config/opencode/commands".source = "${rendered}/commands";
+                ".config/opencode/plugins".source = "${rendered}/plugins";
+                ".config/opencode/skills".source = "${rendered}/skills";
+              };
             })
             (lib.mkIf cfg.claude.enable {
               home.file = {
