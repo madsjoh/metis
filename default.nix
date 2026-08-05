@@ -82,16 +82,18 @@ in
         )
       );
 
-  # Upstream superpowers skills. Gated by the superpowers feature group.
+  # Upstream superpowers skills that form the mandatory workflow spine.
   superpowersSkills = discoverDirectorySkills (superpowersSrc + "/skills");
 
   # Optional leaf skill sources. Each is gated by its own enable flag in the
-  # home-manager module and layered on top of the superpowers spine.
+  # home-manager module and layered on top of the superpowers spine. Anthropic
+  # and vercel surface their skills directory, while matt-pocock surfaces only
+  # its engineering category.
   anthropicSkills = discoverDirectorySkills (anthropicSkillsSrc + "/skills");
   vercelSkills = discoverDirectorySkills (vercelSkillsSrc + "/skills");
-  mattPocockSkills = discoverDirectorySkills (mattPocockSkillsSrc + "/skills");
+  mattPocockSkills = discoverDirectorySkills (mattPocockSkillsSrc + "/skills/engineering");
 
-  # First-party metis skills. Gated by the core feature group.
+  # First-party metis skills.
   #
   # Auto-discover both flat single-file skills (`<name>.md`) and directory
   # skills (`<name>/SKILL.md` plus optional `references/` for progressive
