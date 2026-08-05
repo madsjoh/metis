@@ -56,14 +56,9 @@
       };
 
       build =
-        {
-          pkgs,
-          models ? {
-            primary = "opencode/gpt-5.1-codex";
-          },
-        }:
+        { pkgs }:
         import ./default.nix {
-          inherit pkgs sources models;
+          inherit pkgs sources;
           basePath = self;
         };
     in
@@ -79,13 +74,9 @@
         }:
         let
           cfg = config.metis;
-          defaultModels = {
-            primary = "opencode/gpt-5.1-codex";
-          };
-          models = defaultModels // (cfg.opencode.core.models or { });
           rendered = pkgs.callPackage ./dump.nix {
             inherit pkgs;
-            settings = build { inherit pkgs models; };
+            settings = build { inherit pkgs; };
             includeAnthropicSkills = cfg.opencode.anthropicSkills.enable;
             includeMattPocockSkills = cfg.opencode.mattPocockSkills.enable;
             includeVercelSkills = cfg.opencode.vercelSkills.enable;
@@ -99,21 +90,6 @@
             lib.mkEnableOption "install the matt-pocock leaf skills on top of the superpowers spine";
           options.metis.opencode.vercelSkills.enable =
             lib.mkEnableOption "install the vercel leaf skills on top of the superpowers spine";
-          options.metis.opencode.core.models = lib.mkOption {
-            type =
-              with lib.types;
-              submodule {
-                options = {
-                  primary = lib.mkOption {
-                    type = str;
-                    default = "opencode/gpt-5.1-codex";
-                    description = "Model for the builder agent.";
-                  };
-                };
-              };
-            default = { };
-            description = "Model configuration for the builder agent.";
-          };
           options.metis.claude.enable = lib.mkEnableOption "configure Claude Code with metis skills, agents, and commands";
           options.metis.codex.enable = lib.mkEnableOption "configure Codex with metis skills, agents, and commands";
 

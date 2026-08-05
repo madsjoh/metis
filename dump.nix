@@ -8,9 +8,6 @@
 let
   inherit (pkgs) lib;
 
-  substituteModelPlaceholders =
-    content: builtins.replaceStrings [ "__PRIMARY_MODEL__" ] [ settings.models.primary ] content;
-
   # Render a single skill entry. A directory skill is copied recursively. A
   # file skill is rendered to `<name>/SKILL.md`.
   renderSkill =
@@ -27,15 +24,10 @@ let
         cp ${sourcePath} "$out/skills/${name}/SKILL.md"
       '';
 
-  # Render a file entry to `<directory>/<name>.md` with model placeholder substitution.
+  # Render a file entry to `<directory>/<name>.md`.
   renderFile =
     directory: name: source:
-    let
-      content = builtins.readFile source;
-      substituted = substituteModelPlaceholders content;
-      storePath = pkgs.writeText "${name}.md" substituted;
-    in
-    "cp ${storePath} \"$out/${directory}/${name}.md\"";
+    "cp ${builtins.toString source} \"$out/${directory}/${name}.md\"";
 
   superpowersSkillCommands = lib.mapAttrsToList renderSkill settings.superpowersSkills;
   coreSkillCommands = lib.mapAttrsToList renderSkill settings.coreSkills;

@@ -27,16 +27,15 @@ Wire the returned settings into a home-manager module.
     anthropicSkills.enable = false;
     mattPocockSkills.enable = false;
     vercelSkills.enable = false;
-    core.models.primary = "opencode/gpt-5.1-codex";
   };
 }
 ```
 
-The opencode module installs the superpowers spine and the first-party metis assets whenever `enable` is true. The spine provides the superpowers plugin and skills that drive the whole workflow. The first-party assets are the `builder` agent, the `commit` and `pull-request` commands, their two supporting skills, and the shared context. Each leaf skill source, anthropic, vercel, and matt-pocock, is an optional add-on gated by its own enable flag and defaulting to off. Model configuration for the builder agent lives under `core.models.primary`.
+The opencode module installs the superpowers spine and the first-party metis assets whenever `enable` is true. The spine provides the superpowers plugin and skills that drive the whole workflow. The first-party assets are the `commit` and `pull-request` commands, their two supporting skills, and the shared context. Each leaf skill source, anthropic, vercel, and matt-pocock, is an optional add-on gated by its own enable flag and defaulting to off.
 
 The superpowers plugin is an opencode artifact. It registers the skills directory and injects the `using-superpowers` bootstrap into every opencode session, which is what makes the spine load automatically. Claude Code and Codex receive the same skills, agents, commands, and context, but they do not receive the plugin, because no portable equivalent exists. On those targets the superpowers skills are present on disk and available through the native skill loading mechanism, yet there is no automatic session bootstrap. Load the `using-superpowers` skill at the start of a session on Claude Code or Codex to get the same always-on behavior.
 
-Or use the low-level builder.
+Or use the low-level `lib.build` function.
 
 ```nix
 # home.nix
@@ -61,13 +60,13 @@ The same settings apply to `opencode`, which reads the identical attribute set.
 
 ## Overview
 
-Metis exposes a home-manager module (`metis.opencode.enable = true`) and a builder function through its flake `lib`. The builder discovers the local skills, commands, and agents, merges them with pinned upstream sources, and returns an attribute set ready to feed into a home-manager program module.
+Metis exposes a home-manager module (`metis.opencode.enable = true`) and a build function through its flake `lib`. The build function discovers the local skills, commands, and agents, merges them with pinned upstream sources, and returns an attribute set ready to feed into a home-manager program module.
 
 ## Contents
 
 | Path | Description |
 | --- | --- |
-| `core/agents/` | The first-party `builder` agent. |
+| `core/agents/` | The first-party agents. |
 | `core/commands/` | The `commit` and `pull-request` slash commands. |
 | `core/skills/` | The `upsert-git-commit` and `upsert-github-pull-request` skills. |
 | `context.md` | Shared global instructions rendered to `AGENTS.md` or `CLAUDE.md`. |
@@ -79,7 +78,6 @@ Metis exposes a home-manager module (`metis.opencode.enable = true`) and a build
 | Argument | Description |
 | --- | --- |
 | `pkgs` | The nixpkgs instance for the target system. |
-| `models` | Optional model configuration. Defaults to the pinned primary model. |
 
 The function returns an attribute set with these members.
 
@@ -93,7 +91,6 @@ The function returns an attribute set with these members.
 | `coreSkills` | The discovered first-party metis skills. |
 | `mattPocockSkills` | The discovered Matt Pocock engineering skills. |
 | `mattPocockSkillsSrc` | The Matt Pocock skills source. |
-| `models` | The resolved model configuration. |
 | `packages` | The list of companion command line packages. |
 | `superpowersPlugin` | The path to the superpowers opencode plugin. |
 | `superpowersSkills` | The discovered upstream superpowers skills. |
