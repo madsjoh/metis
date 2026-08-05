@@ -60,10 +60,13 @@ run_dump() {
           import ${FLAKE_SOURCE}/dump.nix { inherit pkgs settings; }
     ")
 
-    rm --recursive --force "${TARGET_DIRECTORY}"
-    mkdir --parents "${TARGET_DIRECTORY}"
-    cp --recursive "${RENDERED_PATH}"/. "${TARGET_DIRECTORY}/"
-    chmod --recursive u+w "${TARGET_DIRECTORY}"
+    # Use short POSIX flags here. This function also runs on the darwin host,
+    # whose BSD coreutils reject the GNU long options such as --recursive and
+    # --parents. The short flags work under both BSD and GNU coreutils.
+    rm -rf "${TARGET_DIRECTORY}"
+    mkdir -p "${TARGET_DIRECTORY}"
+    cp -R "${RENDERED_PATH}"/. "${TARGET_DIRECTORY}/"
+    chmod -R u+w "${TARGET_DIRECTORY}"
 
     echo "wrote rendered tree to ${TARGET_DIRECTORY}"
 }
