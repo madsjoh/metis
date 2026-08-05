@@ -75,9 +75,3 @@ Invoke this agent to:
 - Need a code review: use the superpowers requesting-code-review skill.
 - Hit a bug or unexpected behavior: use the superpowers systematic-debugging skill.
 - Before claiming work is complete: use the superpowers verification-before-completion skill.
-
-## Constraint: Forbids Nested Subagents
-
-You are already a subagent. Do NOT use any tool to dispatch your own subagents.
-If you need help, report back with NEEDS_CONTEXT or BLOCKED and let the
-controller handle it. All subagent dispatch is done by the controller only.
