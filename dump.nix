@@ -9,11 +9,7 @@ let
   inherit (pkgs) lib;
 
   substituteModelPlaceholders =
-    content:
-    builtins.replaceStrings
-      [ "__PRIMARY_MODEL__" ]
-      [ settings.models.primary ]
-      content;
+    content: builtins.replaceStrings [ "__PRIMARY_MODEL__" ] [ settings.models.primary ] content;
 
   # Render a single skill entry. A directory skill is copied recursively. A
   # file skill is rendered to `<name>/SKILL.md`.
