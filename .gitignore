@@ -1,6 +1,9 @@
 # Materialized output from scripts/dump.sh.
 /generated/
 
+# Git worktrees for isolated development.
+/.worktrees/
+
 # Nix build result symlinks.
 /result
 /result-*
