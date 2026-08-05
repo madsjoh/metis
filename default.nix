@@ -33,6 +33,7 @@ let
 in
 {
   inherit anthropicSkillsSrc;
+  inherit mattPocockSkillsSrc;
   inherit superpowersSrc;
   inherit vercelSkillsSrc;
 
