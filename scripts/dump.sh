@@ -29,7 +29,7 @@ run_dump() {
     "
 
     echo "===== attribute names ====="
-    for CATEGORY in agents commands coreSkills superpowersSkills; do
+    for CATEGORY in agents anthropicSkills commands coreSkills mattPocockSkills superpowersSkills vercelSkills; do
         echo "--- ${CATEGORY} ---"
         ${NIX} eval --impure --raw --expr "
             builtins.concatStringsSep \"\n\" (builtins.attrNames (${SETTINGS_EXPRESSION}).${CATEGORY})
@@ -38,7 +38,7 @@ run_dump() {
     done
 
     echo "===== resolved store paths ====="
-    for CATEGORY in agents commands coreSkills superpowersSkills; do
+    for CATEGORY in agents anthropicSkills commands coreSkills mattPocockSkills superpowersSkills vercelSkills; do
         echo "--- ${CATEGORY} ---"
         ${NIX} eval --impure --raw --expr "
             let category = (${SETTINGS_EXPRESSION}).${CATEGORY};
