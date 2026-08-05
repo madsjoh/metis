@@ -83,17 +83,19 @@ The function returns an attribute set with these members.
 
 | Attribute | Description |
 | --- | --- |
-| `agents` | Local agents merged with the superpowers code reviewer. |
-| `commands` | Local commands merged with the superpowers commands. |
+| `agents` | The first-party metis agents. |
+| `anthropicSkills` | The discovered Anthropic leaf skills. |
+| `anthropicSkillsSrc` | The Anthropic skills source. |
+| `commands` | The first-party metis commands. |
 | `context` | The path to `context.md`. |
 | `coreSkills` | The discovered first-party metis skills. |
-| `superpowersSkills` | The discovered upstream superpowers skills. |
+| `mattPocockSkills` | The discovered Matt Pocock engineering skills. |
+| `models` | The resolved model configuration. |
 | `packages` | The list of companion command line packages. |
-| `mattPocockSkills` | The discovered Matt Pocock skills. |
-| `anthropicSkills` | The discovered Anthropic leaf skills. |
-| `vercelSkills` | The discovered Vercel leaf skills. |
-| `anthropicSkillsSrc` | The Anthropic skills source. |
+| `superpowersPlugin` | The path to the superpowers opencode plugin. |
+| `superpowersSkills` | The discovered upstream superpowers skills. |
 | `superpowersSrc` | The superpowers source. |
+| `vercelSkills` | The discovered Vercel leaf skills. |
 | `vercelSkillsSrc` | The Vercel skills source. |
 
 ## Upstream Sources
@@ -119,10 +121,11 @@ These scripts run the checks inside a Nix container and require only Docker.
 
 ## License
 
-Metis is released under the [MIT License](./LICENSE). Bundled upstream skills retain their own licenses.
+Metis is released under the [MIT License][license]. Bundled upstream skills retain their own licenses.
 
 [anthropic-skills]: https://github.com/anthropics/skills
 [home-manager]: https://github.com/nix-community/home-manager
+[license]: ./LICENSE
 [matt-pocock-skills]: https://github.com/mattpocock/skills
 [superpowers]: https://github.com/obra/superpowers
 [vercel-skills]: https://github.com/vercel-labs/skills
