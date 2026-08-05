@@ -72,7 +72,13 @@
     {
       lib.build = build;
 
-      homeManagerModules.default = { config, lib, pkgs, ... }:
+      homeManagerModules.default =
+        {
+          config,
+          lib,
+          pkgs,
+          ...
+        }:
         let
           cfg = config.metis;
           defaultModels = {
@@ -80,49 +86,63 @@
             review = "opencode/gpt-5.1-codex";
             lightweight = "opencode/gpt-5.1-codex";
           };
-          models = defaultModels // (cfg.opencode.models or {});
+          models = defaultModels // (cfg.opencode.core.models or { });
           rendered = pkgs.callPackage ./dump.nix {
             inherit pkgs;
             settings = build { inherit pkgs models; };
+            includeSuperpowers = cfg.opencode.superpowers.enable;
+            includeCore = cfg.opencode.core.enable;
           };
         in
         {
           options.metis.opencode.enable = lib.mkEnableOption "configure opencode with metis skills, agents, and commands";
-          options.metis.opencode.models = lib.mkOption {
-            type = with lib.types; submodule {
-              options = {
-                primary = lib.mkOption {
-                  type = str;
-                  default = "opencode/gpt-5.1-codex";
-                  description = "Model for primary agents (builder, planner).";
-                };
-                review = lib.mkOption {
-                  type = str;
-                  default = "opencode/gpt-5.1-codex";
-                  description = "Model for review agents (code-reviewer, security-auditor, technical-writer).";
-                };
-                lightweight = lib.mkOption {
-                  type = str;
-                  default = "opencode/gpt-5.1-codex";
-                  description = "Model for lightweight agents (chicken, explorer).";
+          options.metis.opencode.superpowers.enable =
+            lib.mkEnableOption "install the upstream superpowers skills and plugin";
+          options.metis.opencode.core.enable =
+            lib.mkEnableOption "install the first-party metis agents, commands, skills, and context";
+          options.metis.opencode.core.models = lib.mkOption {
+            type =
+              with lib.types;
+              submodule {
+                options = {
+                  primary = lib.mkOption {
+                    type = str;
+                    default = "opencode/gpt-5.1-codex";
+                    description = "Model for primary agents (builder, planner).";
+                  };
+                  review = lib.mkOption {
+                    type = str;
+                    default = "opencode/gpt-5.1-codex";
+                    description = "Model for review agents (code-reviewer, security-auditor, technical-writer).";
+                  };
+                  lightweight = lib.mkOption {
+                    type = str;
+                    default = "opencode/gpt-5.1-codex";
+                    description = "Model for lightweight agents (chicken, explorer).";
+                  };
                 };
               };
-            };
-            default = {};
-            description = "Model configuration for Metis agents.";
+            default = { };
+            description = "Model configuration for the first-party metis agents.";
           };
           options.metis.claude.enable = lib.mkEnableOption "configure Claude Code with metis skills, agents, and commands";
           options.metis.codex.enable = lib.mkEnableOption "configure Codex with metis skills, agents, and commands";
 
           config = lib.mkMerge [
             (lib.mkIf cfg.opencode.enable {
-              home.file = {
-                ".config/opencode/AGENTS.md".source = "${rendered}/context.md";
-                ".config/opencode/agents".source = "${rendered}/agents";
-                ".config/opencode/commands".source = "${rendered}/commands";
-                ".config/opencode/skills".source = "${rendered}/skills";
-                ".config/opencode/plugins".source = "${rendered}/plugins";
-              };
+              home.file = lib.mkMerge [
+                {
+                  ".config/opencode/skills".source = "${rendered}/skills";
+                }
+                (lib.mkIf cfg.opencode.core.enable {
+                  ".config/opencode/AGENTS.md".source = "${rendered}/context.md";
+                  ".config/opencode/agents".source = "${rendered}/agents";
+                  ".config/opencode/commands".source = "${rendered}/commands";
+                })
+                (lib.mkIf cfg.opencode.superpowers.enable {
+                  ".config/opencode/plugins".source = "${rendered}/plugins";
+                })
+              ];
             })
             (lib.mkIf cfg.claude.enable {
               home.file = {

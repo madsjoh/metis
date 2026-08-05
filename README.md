@@ -22,9 +22,22 @@ Wire the returned settings into a home-manager module.
 ```nix
 # home.nix
 {
-  metis.opencode.enable = true;
+  metis.opencode = {
+    enable = true;
+    superpowers.enable = true;
+    core = {
+      enable = true;
+      models = {
+        primary = "opencode/gpt-5.1-codex";
+        review = "opencode/gpt-5.1-codex";
+        lightweight = "opencode/gpt-5.1-codex";
+      };
+    };
+  };
 }
 ```
+
+The opencode module exposes two independent feature groups. Enable `superpowers` to install the upstream superpowers skills and plugin. Enable `core` to install the first-party metis agents, commands, skills, and context. Model configuration lives under `core.models`.
 
 Or use the low-level builder.
 
@@ -40,7 +53,7 @@ in
     agents = settings.agents;
     commands = settings.commands;
     context = settings.context;
-    skills = settings.skills;
+    skills = settings.superpowersSkills // settings.coreSkills;
   };
 }
 ```
@@ -76,7 +89,8 @@ The function returns an attribute set with these members.
 | `agents` | Local agents merged with the superpowers code reviewer. |
 | `commands` | Local commands merged with the superpowers commands. |
 | `context` | The path to `context.md`. |
-| `skills` | Local skills merged with the Matt Pocock skills. |
+| `coreSkills` | The discovered first-party metis skills. |
+| `superpowersSkills` | The discovered upstream superpowers skills. |
 | `packages` | The list of companion command line packages. |
 | `mattPocockSkills` | The discovered Matt Pocock skills. |
 | `anthropicSkillsSrc` | The Anthropic skills source. |

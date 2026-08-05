@@ -80,30 +80,32 @@ in
         )
       );
 
-  skills =
+  # Upstream superpowers skills. Gated by the superpowers feature group.
+  superpowersSkills = discoverDirectorySkills (superpowersSrc + "/skills");
+
+  # First-party metis skills. Gated by the core feature group.
+  #
+  # Auto-discover both flat single-file skills (`<name>.md`) and directory
+  # skills (`<name>/SKILL.md` plus optional `references/` for progressive
+  # disclosure). The home-manager module renders a file to `<name>/SKILL.md`
+  # and copies a directory recursively.
+  coreSkills =
     let
       skillsDir = basePath + "/skills";
-      superpowersSkills = discoverDirectorySkills (superpowersSrc + "/skills");
-      localSkills =
-        # Auto-discover both flat single-file skills (`<name>.md`) and directory
-        # skills (`<name>/SKILL.md` plus optional `references/` for progressive
-        # disclosure). The home-manager module renders a file to `<name>/SKILL.md`
-        # and copies a directory recursively.
-        pkgs.lib.mapAttrs'
-          (
-            name: type:
-            if type == "directory" then
-              pkgs.lib.nameValuePair name (skillsDir + "/${name}")
-            else
-              pkgs.lib.nameValuePair (pkgs.lib.removeSuffix ".md" name) (skillsDir + "/${name}")
-          )
-          (
-            pkgs.lib.filterAttrs (
-              name: type:
-              (type == "regular" && pkgs.lib.hasSuffix ".md" name)
-              || (type == "directory" && builtins.pathExists (skillsDir + "/${name}/SKILL.md"))
-            ) (builtins.readDir skillsDir)
-          );
     in
-    superpowersSkills // localSkills;
+    pkgs.lib.mapAttrs'
+      (
+        name: type:
+        if type == "directory" then
+          pkgs.lib.nameValuePair name (skillsDir + "/${name}")
+        else
+          pkgs.lib.nameValuePair (pkgs.lib.removeSuffix ".md" name) (skillsDir + "/${name}")
+      )
+      (
+        pkgs.lib.filterAttrs (
+          name: type:
+          (type == "regular" && pkgs.lib.hasSuffix ".md" name)
+          || (type == "directory" && builtins.pathExists (skillsDir + "/${name}/SKILL.md"))
+        ) (builtins.readDir skillsDir)
+      );
 }

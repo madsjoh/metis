@@ -1,6 +1,8 @@
 {
   pkgs,
   settings,
+  includeSuperpowers ? true,
+  includeCore ? true,
 }:
 let
   inherit (pkgs) lib;
@@ -42,20 +44,32 @@ let
     in
     "cp ${storePath} \"$out/${directory}/${name}.md\"";
 
-  skillCommands = lib.mapAttrsToList renderSkill settings.skills;
-  agentCommands = lib.mapAttrsToList (renderFile "agents") settings.agents;
-  commandCommands = lib.mapAttrsToList (renderFile "commands") settings.commands;
+  superpowersSkillCommands = lib.optionals includeSuperpowers (
+    lib.mapAttrsToList renderSkill settings.superpowersSkills
+  );
+  coreSkillCommands = lib.optionals includeCore (lib.mapAttrsToList renderSkill settings.coreSkills);
+  agentCommands = lib.optionals includeCore (
+    lib.mapAttrsToList (renderFile "agents") settings.agents
+  );
+  commandCommands = lib.optionals includeCore (
+    lib.mapAttrsToList (renderFile "commands") settings.commands
+  );
+
+  contextCommand = lib.optionalString includeCore ''cp ${builtins.toString settings.context} "$out/context.md"'';
+
+  pluginCommand = lib.optionalString includeSuperpowers ''cp ${builtins.toString settings.superpowersPlugin} "$out/plugins/superpowers.js"'';
 in
 pkgs.runCommand "metis-generated" { } ''
   mkdir --parents "$out/skills" "$out/agents" "$out/commands" "$out/plugins"
 
-  cp ${builtins.toString settings.context} "$out/context.md"
+  ${contextCommand}
 
-  ${lib.concatStringsSep "\n" skillCommands}
+  ${lib.concatStringsSep "\n" superpowersSkillCommands}
+  ${lib.concatStringsSep "\n" coreSkillCommands}
   ${lib.concatStringsSep "\n" agentCommands}
   ${lib.concatStringsSep "\n" commandCommands}
 
-  cp ${builtins.toString settings.superpowersPlugin} "$out/plugins/superpowers.js"
+  ${pluginCommand}
 
   chmod --recursive u+w "$out"
 ''
