@@ -24,20 +24,15 @@ Wire the returned settings into a home-manager module.
 {
   metis.opencode = {
     enable = true;
-    superpowers.enable = true;
-    core = {
-      enable = true;
-      models = {
-        primary = "opencode/gpt-5.1-codex";
-        review = "opencode/gpt-5.1-codex";
-        lightweight = "opencode/gpt-5.1-codex";
-      };
-    };
+    anthropicSkills.enable = false;
+    mattPocockSkills.enable = false;
+    vercelSkills.enable = false;
+    core.models.primary = "opencode/gpt-5.1-codex";
   };
 }
 ```
 
-The opencode module exposes two independent feature groups. Enable `superpowers` to install the upstream superpowers skills and plugin. Enable `core` to install the first-party metis agents, commands, skills, and context. Model configuration lives under `core.models`.
+The opencode module installs the superpowers spine and the first-party metis assets whenever `enable` is true. The spine provides the superpowers plugin and skills that drive the whole workflow. The first-party assets are the `builder` agent, the `commit` and `pull-request` commands, their two supporting skills, and the shared context. Each leaf skill source, anthropic, vercel, and matt-pocock, is an optional add-on gated by its own enable flag and defaulting to off. Model configuration for the builder agent lives under `core.models.primary`.
 
 Or use the low-level builder.
 
@@ -54,6 +49,8 @@ in
     commands = settings.commands;
     context = settings.context;
     skills = settings.superpowersSkills // settings.coreSkills;
+    # Optional: layer in leaf sources, for example:
+    # // settings.anthropicSkills // settings.vercelSkills // settings.mattPocockSkills;
   };
 }
 ```
@@ -68,9 +65,9 @@ Metis exposes a home-manager module (`metis.opencode.enable = true`) and a build
 
 | Path | Description |
 | --- | --- |
-| `core/skills/` | First-party directory skills in `SKILL.md` format. |
-| `core/commands/` | First-party slash command definitions. |
-| `core/agents/` | First-party agent definitions. |
+| `core/agents/` | The first-party `builder` agent. |
+| `core/commands/` | The `commit` and `pull-request` slash commands. |
+| `core/skills/` | The `upsert-git-commit` and `upsert-github-pull-request` skills. |
 | `context.md` | Shared global instructions rendered to `AGENTS.md` or `CLAUDE.md`. |
 
 ## Function Reference
@@ -80,21 +77,25 @@ Metis exposes a home-manager module (`metis.opencode.enable = true`) and a build
 | Argument | Description |
 | --- | --- |
 | `pkgs` | The nixpkgs instance for the target system. |
-| `mattPocockSkillsSource` | Optional override for the Matt Pocock skills source. Defaults to the pinned flake input. |
+| `models` | Optional model configuration. Defaults to the pinned primary model. |
 
 The function returns an attribute set with these members.
 
 | Attribute | Description |
 | --- | --- |
-| `agents` | Local agents merged with the superpowers code reviewer. |
-| `commands` | Local commands merged with the superpowers commands. |
+| `agents` | The first-party metis agents. |
+| `anthropicSkills` | The discovered Anthropic leaf skills. |
+| `anthropicSkillsSrc` | The Anthropic skills source. |
+| `commands` | The first-party metis commands. |
 | `context` | The path to `context.md`. |
 | `coreSkills` | The discovered first-party metis skills. |
-| `superpowersSkills` | The discovered upstream superpowers skills. |
+| `mattPocockSkills` | The discovered Matt Pocock engineering skills. |
+| `models` | The resolved model configuration. |
 | `packages` | The list of companion command line packages. |
-| `mattPocockSkills` | The discovered Matt Pocock skills. |
-| `anthropicSkillsSrc` | The Anthropic skills source. |
+| `superpowersPlugin` | The path to the superpowers opencode plugin. |
+| `superpowersSkills` | The discovered upstream superpowers skills. |
 | `superpowersSrc` | The superpowers source. |
+| `vercelSkills` | The discovered Vercel leaf skills. |
 | `vercelSkillsSrc` | The Vercel skills source. |
 
 ## Upstream Sources
@@ -120,10 +121,11 @@ These scripts run the checks inside a Nix container and require only Docker.
 
 ## License
 
-Metis is released under the [MIT License](./LICENSE). Bundled upstream skills retain their own licenses.
+Metis is released under the [MIT License][license]. Bundled upstream skills retain their own licenses.
 
 [anthropic-skills]: https://github.com/anthropics/skills
 [home-manager]: https://github.com/nix-community/home-manager
+[license]: ./LICENSE
 [matt-pocock-skills]: https://github.com/mattpocock/skills
 [superpowers]: https://github.com/obra/superpowers
 [vercel-skills]: https://github.com/vercel-labs/skills

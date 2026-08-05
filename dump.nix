@@ -1,22 +1,15 @@
 {
   pkgs,
   settings,
-  includeSuperpowers ? true,
-  includeCore ? true,
+  includeAnthropicSkills ? false,
+  includeMattPocockSkills ? false,
+  includeVercelSkills ? false,
 }:
 let
   inherit (pkgs) lib;
 
   substituteModelPlaceholders =
-    content:
-    builtins.replaceStrings
-      [ "__PRIMARY_MODEL__" "__REVIEW_MODEL__" "__LIGHTWEIGHT_MODEL__" ]
-      [
-        settings.models.primary
-        settings.models.review
-        settings.models.lightweight
-      ]
-      content;
+    content: builtins.replaceStrings [ "__PRIMARY_MODEL__" ] [ settings.models.primary ] content;
 
   # Render a single skill entry. A directory skill is copied recursively. A
   # file skill is rendered to `<name>/SKILL.md`.
@@ -44,20 +37,23 @@ let
     in
     "cp ${storePath} \"$out/${directory}/${name}.md\"";
 
-  superpowersSkillCommands = lib.optionals includeSuperpowers (
-    lib.mapAttrsToList renderSkill settings.superpowersSkills
+  superpowersSkillCommands = lib.mapAttrsToList renderSkill settings.superpowersSkills;
+  coreSkillCommands = lib.mapAttrsToList renderSkill settings.coreSkills;
+  anthropicSkillCommands = lib.optionals includeAnthropicSkills (
+    lib.mapAttrsToList renderSkill settings.anthropicSkills
   );
-  coreSkillCommands = lib.optionals includeCore (lib.mapAttrsToList renderSkill settings.coreSkills);
-  agentCommands = lib.optionals includeCore (
-    lib.mapAttrsToList (renderFile "agents") settings.agents
+  vercelSkillCommands = lib.optionals includeVercelSkills (
+    lib.mapAttrsToList renderSkill settings.vercelSkills
   );
-  commandCommands = lib.optionals includeCore (
-    lib.mapAttrsToList (renderFile "commands") settings.commands
+  mattPocockSkillCommands = lib.optionals includeMattPocockSkills (
+    lib.mapAttrsToList renderSkill settings.mattPocockSkills
   );
+  agentCommands = lib.mapAttrsToList (renderFile "agents") settings.agents;
+  commandCommands = lib.mapAttrsToList (renderFile "commands") settings.commands;
 
-  contextCommand = lib.optionalString includeCore ''cp ${builtins.toString settings.context} "$out/context.md"'';
+  contextCommand = ''cp ${builtins.toString settings.context} "$out/context.md"'';
 
-  pluginCommand = lib.optionalString includeSuperpowers ''cp ${builtins.toString settings.superpowersPlugin} "$out/plugins/superpowers.js"'';
+  pluginCommand = ''cp ${builtins.toString settings.superpowersPlugin} "$out/plugins/superpowers.js"'';
 in
 pkgs.runCommand "metis-generated" { } ''
   mkdir --parents "$out/skills" "$out/agents" "$out/commands" "$out/plugins"
@@ -66,6 +62,9 @@ pkgs.runCommand "metis-generated" { } ''
 
   ${lib.concatStringsSep "\n" superpowersSkillCommands}
   ${lib.concatStringsSep "\n" coreSkillCommands}
+  ${lib.concatStringsSep "\n" anthropicSkillCommands}
+  ${lib.concatStringsSep "\n" vercelSkillCommands}
+  ${lib.concatStringsSep "\n" mattPocockSkillCommands}
   ${lib.concatStringsSep "\n" agentCommands}
   ${lib.concatStringsSep "\n" commandCommands}
 
