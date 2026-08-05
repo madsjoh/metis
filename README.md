@@ -34,6 +34,8 @@ Wire the returned settings into a home-manager module.
 
 The opencode module installs the superpowers spine and the first-party metis assets whenever `enable` is true. The spine provides the superpowers plugin and skills that drive the whole workflow. The first-party assets are the `builder` agent, the `commit` and `pull-request` commands, their two supporting skills, and the shared context. Each leaf skill source, anthropic, vercel, and matt-pocock, is an optional add-on gated by its own enable flag and defaulting to off. Model configuration for the builder agent lives under `core.models.primary`.
 
+The superpowers plugin is an opencode artifact. It registers the skills directory and injects the `using-superpowers` bootstrap into every opencode session, which is what makes the spine load automatically. Claude Code and Codex receive the same skills, agents, commands, and context, but they do not receive the plugin, because no portable equivalent exists. On those targets the superpowers skills are present on disk and available through the native skill loading mechanism, yet there is no automatic session bootstrap. Load the `using-superpowers` skill at the start of a session on Claude Code or Codex to get the same always-on behavior.
+
 Or use the low-level builder.
 
 ```nix
@@ -90,6 +92,7 @@ The function returns an attribute set with these members.
 | `context` | The path to `context.md`. |
 | `coreSkills` | The discovered first-party metis skills. |
 | `mattPocockSkills` | The discovered Matt Pocock engineering skills. |
+| `mattPocockSkillsSrc` | The Matt Pocock skills source. |
 | `models` | The resolved model configuration. |
 | `packages` | The list of companion command line packages. |
 | `superpowersPlugin` | The path to the superpowers opencode plugin. |
@@ -115,7 +118,7 @@ Metis bundles skills from these projects, pinned through flake inputs.
 
 These scripts run the checks inside a Nix container and require only Docker.
 
-- Run `scripts/test.sh` to evaluate the flake and assert the settings.
+- Run `scripts/test.sh` to evaluate the flake with `nix flake check`.
 - Run `scripts/format-check.sh` to confirm the Nix files are formatted.
 - Run `scripts/dump.sh` to list the generated attribute names and store paths, and to materialize the rendered tree into `generated/`.
 
