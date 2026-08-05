@@ -4,8 +4,6 @@
   sources,
   models ? {
     primary = "opencode/gpt-5.1-codex";
-    review = "opencode/gpt-5.1-codex";
-    lightweight = "opencode/gpt-5.1-codex";
   },
 }:
 let
@@ -28,6 +26,10 @@ let
   # vercel-labs/skills: Open agent skills ecosystem.
   # https://github.com/vercel-labs/skills
   vercelSkillsSrc = sources.vercel-skills;
+
+  # mattpocock/skills: Skills for real software engineering.
+  # https://github.com/mattpocock/skills
+  mattPocockSkillsSrc = sources.matt-pocock-skills;
 in
 {
   inherit anthropicSkillsSrc;
@@ -82,6 +84,12 @@ in
 
   # Upstream superpowers skills. Gated by the superpowers feature group.
   superpowersSkills = discoverDirectorySkills (superpowersSrc + "/skills");
+
+  # Optional leaf skill sources. Each is gated by its own enable flag in the
+  # home-manager module and layered on top of the superpowers spine.
+  anthropicSkills = discoverDirectorySkills (anthropicSkillsSrc + "/skills");
+  vercelSkills = discoverDirectorySkills (vercelSkillsSrc + "/skills");
+  mattPocockSkills = discoverDirectorySkills (mattPocockSkillsSrc + "/skills");
 
   # First-party metis skills. Gated by the core feature group.
   #
