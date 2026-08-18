@@ -21,7 +21,10 @@ Wire the returned settings into a home-manager module.
 
 ```nix
 # home.nix
+{ inputs, ... }:
 {
+  imports = [ inputs.metis.homeManagerModules.default ];
+
   metis.opencode = {
     enable = true;
     anthropicSkills.enable = false;
@@ -35,38 +38,16 @@ The opencode module installs the superpowers spine and the first-party metis ass
 
 The superpowers plugin is an opencode artifact. It registers the skills directory and injects the `using-superpowers` bootstrap into every opencode session, which is what makes the spine load automatically. Claude Code and Codex receive the same skills, agents, commands, and context, but they do not receive the plugin, because no portable equivalent exists. On those targets the superpowers skills are present on disk and available through the native skill loading mechanism, yet there is no automatic session bootstrap. Load the `using-superpowers` skill at the start of a session on Claude Code or Codex to get the same always-on behavior.
 
-Or use the low-level `lib.build` function.
-
-```nix
-# home.nix
-{ pkgs, inputs, ... }:
-let
-  settings = inputs.metis.lib.build { inherit pkgs; };
-in
-{
-  programs.claude-code = {
-    enable = true;
-    agents = settings.agents;
-    commands = settings.commands;
-    context = settings.context;
-    skills = settings.superpowersSkills // settings.coreSkills;
-    # Optional: layer in leaf sources, for example:
-    # // settings.anthropicSkills // settings.vercelSkills // settings.mattPocockSkills;
-  };
-}
-```
-
-The same settings apply to `opencode`, which reads the identical attribute set.
+The flake also provides `metis.claude` and `metis.codex` modules that mirror `metis.opencode`. For other targets, use the low-level `lib.build` function described below.
 
 ## Overview
 
-Metis exposes a home-manager module (`metis.opencode.enable = true`) and a build function through its flake `lib`. The build function discovers the local skills, commands, and agents, merges them with pinned upstream sources, and returns an attribute set ready to feed into a home-manager program module.
+Metis exposes a home-manager module (`metis.opencode.enable = true`) and a build function through its flake `lib`. The build function discovers the local skills and commands, merges them with pinned upstream sources, and returns an attribute set ready to feed into a home-manager program module.
 
 ## Contents
 
 | Path | Description |
 | --- | --- |
-| `core/agents/` | The first-party agents. |
 | `core/commands/` | The `commit` and `pull-request` slash commands. |
 | `core/skills/` | The `git-commit` and `github-pull-request` skills. |
 | `context.md` | Shared global instructions rendered to `AGENTS.md` or `CLAUDE.md`. |
@@ -83,7 +64,6 @@ The function returns an attribute set with these members.
 
 | Attribute | Description |
 | --- | --- |
-| `agents` | The first-party metis agents. |
 | `anthropicSkills` | The discovered Anthropic leaf skills. |
 | `anthropicSkillsSrc` | The Anthropic skills source. |
 | `commands` | The first-party metis commands. |
