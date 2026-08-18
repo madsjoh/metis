@@ -21,7 +21,10 @@ Wire the returned settings into a home-manager module.
 
 ```nix
 # home.nix
+{ inputs, ... }:
 {
+  imports = [ inputs.metis.homeManagerModules.default ];
+
   metis.opencode = {
     enable = true;
     anthropicSkills.enable = false;
@@ -46,27 +49,26 @@ in
 {
   programs.claude-code = {
     enable = true;
-    agents = settings.agents;
     commands = settings.commands;
     context = settings.context;
     skills = settings.superpowersSkills // settings.coreSkills;
-    # Optional: layer in leaf sources, for example:
-    # // settings.anthropicSkills // settings.vercelSkills // settings.mattPocockSkills;
+    # Optional: also layer in leaf sources:
+    # skills = settings.superpowersSkills // settings.coreSkills
+    #   // settings.anthropicSkills // settings.vercelSkills // settings.mattPocockSkills;
   };
 }
 ```
 
-The same settings apply to `opencode`, which reads the identical attribute set.
+The returned attribute set is target agnostic, and the flake also provides `metis.claude` and `metis.codex` modules that mirror `metis.opencode`.
 
 ## Overview
 
-Metis exposes a home-manager module (`metis.opencode.enable = true`) and a build function through its flake `lib`. The build function discovers the local skills, commands, and agents, merges them with pinned upstream sources, and returns an attribute set ready to feed into a home-manager program module.
+Metis exposes a home-manager module (`metis.opencode.enable = true`) and a build function through its flake `lib`. The build function discovers the local skills and commands, merges them with pinned upstream sources, and returns an attribute set ready to feed into a home-manager program module.
 
 ## Contents
 
 | Path | Description |
 | --- | --- |
-| `core/agents/` | The first-party agents. |
 | `core/commands/` | The `commit` and `pull-request` slash commands. |
 | `core/skills/` | The `git-commit` and `github-pull-request` skills. |
 | `context.md` | Shared global instructions rendered to `AGENTS.md` or `CLAUDE.md`. |
@@ -83,7 +85,6 @@ The function returns an attribute set with these members.
 
 | Attribute | Description |
 | --- | --- |
-| `agents` | The first-party metis agents. |
 | `anthropicSkills` | The discovered Anthropic leaf skills. |
 | `anthropicSkillsSrc` | The Anthropic skills source. |
 | `commands` | The first-party metis commands. |
