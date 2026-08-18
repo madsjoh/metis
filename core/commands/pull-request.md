@@ -5,7 +5,7 @@ description: Create or update pull request with proper message
 
 # Create or Update Pull Request
 
-Load the `upsert-github-pull-request` skill first, then create a pull request title and description.
+Load the `github-pull-request` skill first, then create a pull request title and description.
 
 ## Usage
 
@@ -13,12 +13,13 @@ Load the `upsert-github-pull-request` skill first, then create a pull request ti
 
 ## What This Command Does
 
-- Loads the `upsert-github-pull-request` skill for pull request conventions.
+- Loads the `github-pull-request` skill for pull request conventions.
 - Skips execution if the current branch is the default branch.
 - Analyzes all existing commits in the feature branch.
 - Detects repository type for nixpkgs versus other repositories.
 - Follows Conventional Commits for most repositories.
 - Follows nixpkgs commit conventions for nixpkgs forks.
+- Detects and fills a repository pull request template when present.
 - Groups logical changes from feature branch commits.
 - Generates a pull request title and description draft.
 - Shows a preview of the pull request title and description.
