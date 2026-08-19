@@ -62,6 +62,10 @@ Do not use slang shorthand words.
 
 Use reference-style links in all Markdown files.
 
+## Repository Hygiene
+
+Never create, store, or commit files under `docs/superpowers`. Keep Superpowers design specifications and implementation plans outside the repository.
+
 ## Code Quality
 
 - Suggest concise, "Don't Repeat Yourself" solutions.

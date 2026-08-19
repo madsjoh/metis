@@ -87,6 +87,28 @@ Metis bundles skills from these projects, pinned through flake inputs.
 - [vercel-labs/skills][vercel-skills]
 - [mattpocock/skills][matt-pocock-skills]
 
+## Deployment Without Home Manager
+
+The deployment script installs the rendered Metis tree for people who do not use Home Manager. It requires Docker because it runs `scripts/dump.sh` to refresh `generated/` before copying files.
+
+Pass the target tool to the script.
+
+```console
+scripts/deploy.sh claude
+scripts/deploy.sh codex
+scripts/deploy.sh opencode
+```
+
+The script deploys to the standard configuration directory for each tool.
+
+| Tool | Target Directory |
+| --- | --- |
+| Claude Code | `~/.claude` |
+| Codex | `~/.codex` |
+| opencode | `~/.config/opencode` |
+
+Each deployment replaces the tool's Metis managed context file and directories. Unrelated files already in the target directory, such as `opencode.jsonc`, remain untouched.
+
 ## Development
 
 - Run `nix flake check` to evaluate the flake.
