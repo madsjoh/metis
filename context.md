@@ -64,7 +64,7 @@ Use reference-style links in all Markdown files.
 
 ## Repository Hygiene
 
-Never create, store, or commit files under `docs/superpowers`. Keep Superpowers design specifications and implementation plans outside the repository.
+Never create, store, or commit files under `docs/superpowers`. Keep concise design and plan summaries in the session. When a full specification or implementation plan is useful beyond the session summary, store it in a temporary directory outside the repository and report its path.
 
 ## Code Quality
 
