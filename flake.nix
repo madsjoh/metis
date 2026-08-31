@@ -165,7 +165,7 @@
               paths = settings.packages;
             };
 
-            formatter = pkgs.nixfmt;
+            formatter = pkgs.nixfmt-tree;
           }
         );
 }
