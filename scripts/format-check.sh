@@ -15,7 +15,7 @@ NIX_IMAGE="nixos/nix:latest"
 if command -v nix > /dev/null 2>&1; then
     nix --extra-experimental-features "nix-command flakes" \
         run nixpkgs#nixfmt -- --check \
-        "${REPOSITORY_ROOT}/flake.nix" "${REPOSITORY_ROOT}/default.nix"
+        "${REPOSITORY_ROOT}"/*.nix
     echo "formatting is correct"
     exit 0
 fi
@@ -37,7 +37,7 @@ docker run --rm \
         NIX="nix --extra-experimental-features nix-command --extra-experimental-features flakes"
 
         echo "===== nixfmt --check ====="
-        ${NIX} run nixpkgs#nixfmt -- --check ./flake.nix ./default.nix
+        ${NIX} run nixpkgs#nixfmt -- --check ./*.nix
 
         echo "formatting is correct"
     '

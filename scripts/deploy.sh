@@ -79,7 +79,7 @@ for DIRECTORY in "${MANAGED_DIRECTORIES[@]}"; do
         echo "error: expected source directory ${SOURCE}" >&2
         exit 1
     fi
-    rm -rf "${TARGET_DIRECTORY}/${DIRECTORY}"
+    rm -rf "${TARGET_DIRECTORY}/${DIRECTORY:?}"
     cp -R "${SOURCE}" "${TARGET_DIRECTORY}/${DIRECTORY}"
     chmod -R u+w "${TARGET_DIRECTORY}/${DIRECTORY}"
 done

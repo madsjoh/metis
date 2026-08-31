@@ -74,52 +74,73 @@
         }:
         let
           cfg = config.metis;
-          rendered = pkgs.callPackage ./dump.nix {
-            inherit pkgs;
-            settings = build { inherit pkgs; };
-            includeAnthropicSkills = cfg.opencode.anthropicSkills.enable;
-            includeMattPocockSkills = cfg.opencode.mattPocockSkills.enable;
-            includeVercelSkills = cfg.opencode.vercelSkills.enable;
+          settings = build { inherit pkgs; };
+
+          skillDescriptions = {
+            anthropic = "install the anthropic leaf skills on top of the superpowers spine";
+            mattpocock = "install the mattpocock leaf skills on top of the superpowers spine";
+            vercel = "install the vercel leaf skills on top of the superpowers spine";
           };
+
+          targets = {
+            opencode = {
+              description = "opencode";
+              directory = ".config/opencode";
+              contextFile = "AGENTS.md";
+              plugins = true;
+            };
+            claude = {
+              description = "Claude Code";
+              directory = ".claude";
+              contextFile = "CLAUDE.md";
+              plugins = false;
+            };
+            codex = {
+              description = "Codex";
+              directory = ".codex";
+              contextFile = "AGENTS.md";
+              plugins = false;
+            };
+          };
+
+          render =
+            name:
+            pkgs.callPackage ./dump.nix {
+              inherit pkgs settings;
+              includeAnthropicSkills = cfg.${name}.skills.anthropic.enable;
+              includeMattPocockSkills = cfg.${name}.skills.mattpocock.enable;
+              includeVercelSkills = cfg.${name}.skills.vercel.enable;
+            };
+
+          homeFiles =
+            name: target:
+            let
+              rendered = render name;
+              directory = target.directory;
+            in
+            {
+              "${directory}/${target.contextFile}".source = "${rendered}/context.md";
+              "${directory}/agents".source = "${rendered}/agents";
+              "${directory}/commands".source = "${rendered}/commands";
+              "${directory}/skills".source = "${rendered}/skills";
+            }
+            // lib.optionalAttrs target.plugins {
+              "${directory}/plugins".source = "${rendered}/plugins";
+            };
         in
         {
-          options.metis.opencode.enable = lib.mkEnableOption "configure opencode with metis skills, agents, and commands";
-          options.metis.opencode.anthropicSkills.enable =
-            lib.mkEnableOption "install the anthropic leaf skills on top of the superpowers spine";
-          options.metis.opencode.mattPocockSkills.enable =
-            lib.mkEnableOption "install the matt-pocock leaf skills on top of the superpowers spine";
-          options.metis.opencode.vercelSkills.enable =
-            lib.mkEnableOption "install the vercel leaf skills on top of the superpowers spine";
-          options.metis.claude.enable = lib.mkEnableOption "configure Claude Code with metis skills, agents, and commands";
-          options.metis.codex.enable = lib.mkEnableOption "configure Codex with metis skills, agents, and commands";
+          options.metis = lib.mapAttrs (name: target: {
+            enable = lib.mkEnableOption "configure ${target.description} with metis skills, agents, and commands";
+            skills = lib.mapAttrs (skill: description: {
+              enable = lib.mkEnableOption description;
+            }) skillDescriptions;
+          }) targets;
 
-          config = lib.mkMerge [
-            (lib.mkIf cfg.opencode.enable {
-              home.file = {
-                ".config/opencode/AGENTS.md".source = "${rendered}/context.md";
-                ".config/opencode/agents".source = "${rendered}/agents";
-                ".config/opencode/commands".source = "${rendered}/commands";
-                ".config/opencode/plugins".source = "${rendered}/plugins";
-                ".config/opencode/skills".source = "${rendered}/skills";
-              };
-            })
-            (lib.mkIf cfg.claude.enable {
-              home.file = {
-                ".claude/CLAUDE.md".source = "${rendered}/context.md";
-                ".claude/agents".source = "${rendered}/agents";
-                ".claude/commands".source = "${rendered}/commands";
-                ".claude/skills".source = "${rendered}/skills";
-              };
-            })
-            (lib.mkIf cfg.codex.enable {
-              home.file = {
-                ".codex/AGENTS.md".source = "${rendered}/context.md";
-                ".codex/agents".source = "${rendered}/agents";
-                ".codex/commands".source = "${rendered}/commands";
-                ".codex/skills".source = "${rendered}/skills";
-              };
-            })
-          ];
+          config = lib.mkMerge (
+            lib.mapAttrsToList (
+              name: target: lib.mkIf cfg.${name}.enable { home.file = homeFiles name target; }
+            ) targets
+          );
         };
     }
     # nixpkgs-unstable has dropped x86_64-darwin, so it is excluded here.
@@ -144,7 +165,7 @@
               paths = settings.packages;
             };
 
-            formatter = pkgs.nixfmt;
+            formatter = pkgs.nixfmt-tree;
           }
         );
 }
