@@ -54,6 +54,17 @@ in
       codex-bar # https://search.nixos.org/packages?channel=unstable&type=packages&show=codex-bar
     ];
 
+  # Language server binaries installed when the opencode lsp option is enabled.
+  lspPackages = with pkgs; [
+    bash-language-server # https://search.nixos.org/packages?channel=unstable&type=packages&show=bash-language-server
+    clang-tools # https://search.nixos.org/packages?channel=unstable&type=packages&show=clang-tools
+    csharp-ls # https://search.nixos.org/packages?channel=unstable&type=packages&show=csharp-ls
+    fish-lsp # https://search.nixos.org/packages?channel=unstable&type=packages&show=fish-lsp
+    jdt-language-server # https://search.nixos.org/packages?channel=unstable&type=packages&show=jdt-language-server
+    nixd # https://search.nixos.org/packages?channel=unstable&type=packages&show=nixd
+    rust-analyzer # https://search.nixos.org/packages?channel=unstable&type=packages&show=rust-analyzer
+  ];
+
   agents =
     let
       agentsDir = basePath + "/core/agents";
