@@ -141,7 +141,7 @@
               config = lib.mkOption {
                 type = lib.types.attrs;
                 default = { };
-                description = "opencode configuration rendered to opencode.json; must be serializable as JSON";
+                description = "opencode configuration rendered to opencode.jsonc; must be serializable as JSON";
               };
             }
           ) targets;
@@ -152,7 +152,7 @@
             ) targets
             ++ [
               (lib.mkIf (cfg.opencode.enable && cfg.opencode.config != { }) {
-                home.file.".config/opencode/opencode.json".text = builtins.toJSON (
+                home.file.".config/opencode/opencode.jsonc".text = builtins.toJSON (
                   { "$schema" = "https://opencode.ai/config.json"; } // cfg.opencode.config
                 );
               })

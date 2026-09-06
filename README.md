@@ -42,7 +42,7 @@ The flake also provides `metis.claude` and `metis.codex` modules that mirror `me
 
 ## OpenCode Configuration
 
-The opencode module renders the `config` attribute set verbatim to `~/.config/opencode/opencode.json`, so any [opencode configuration][opencode-config] setting is available from home.nix.
+The opencode module renders the `config` attribute set verbatim to `~/.config/opencode/opencode.jsonc`, so any [opencode configuration][opencode-config] setting is available from home.nix.
 
 ```nix
 # home.nix
