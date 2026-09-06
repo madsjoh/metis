@@ -40,6 +40,49 @@ The superpowers plugin is an opencode artifact. It registers the skills director
 
 The flake also provides `metis.claude` and `metis.codex` modules that mirror `metis.opencode`, each with its own `enable` flag and `skills` submodule. For other targets, use the low-level `lib.build` function described below.
 
+## OpenCode Configuration
+
+The opencode module renders the `config` attribute set verbatim to `~/.config/opencode/opencode.json`, so any [opencode configuration][opencode-config] setting is available from home.nix.
+
+```nix
+# home.nix
+{ inputs, ... }:
+{
+  imports = [ inputs.metis.homeManagerModules.default ];
+
+  metis.opencode = {
+    enable = true;
+    config = {
+      compaction = {
+        auto = true;
+      };
+      lsp = {
+        jdtls.command = [ "jdtls" ];
+        csharp.command = [ "csharp-ls" ];
+        fish = {
+          command = [ "fish-lsp" "start" ];
+          extensions = [ ".fish" ];
+        };
+      };
+    };
+  };
+}
+```
+
+Setting `config.lsp` enables the opencode LSP servers. The object form keeps every built-in server enabled while applying the three entries that a Nix installation needs. `jdtls` and `csharp` point at the bundled `jdt-language-server` and `csharp-ls` wrappers instead of relying on a system JDK or the .NET SDK, and `fish` registers the `fish-lsp` server, which opencode does not ship. When `config.lsp` is set, metis installs these language server binaries into `home.packages`.
+
+| Server | Package |
+| --- | --- |
+| Bash | `bash-language-server` |
+| C and C++ | `clang-tools` |
+| C# | `csharp-ls` |
+| Fish | `fish-lsp` |
+| Java | `jdt-language-server` |
+| Nix | `nixd` |
+| Rust | `rust-analyzer` |
+
+The `config` value must be serializable as JSON, so use strings, numbers, booleans, lists, and attribute sets only.
+
 ## Overview
 
 Metis exposes a home-manager module (`metis.opencode.enable = true`) and a build function through its flake `lib`. The build function discovers the local skills and commands, merges them with pinned upstream sources, and returns an attribute set ready to feed into a home-manager program module.
@@ -129,5 +172,6 @@ Metis is released under the [MIT License][license]. Bundled upstream skills reta
 [home-manager]: https://github.com/nix-community/home-manager
 [license]: ./LICENSE
 [matt-pocock-skills]: https://github.com/mattpocock/skills
+[opencode-config]: https://opencode.ai/docs/config/
 [superpowers]: https://github.com/obra/superpowers
 [vercel-skills]: https://github.com/vercel-labs/skills

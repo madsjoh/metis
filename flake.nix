@@ -129,17 +129,37 @@
             };
         in
         {
-          options.metis = lib.mapAttrs (name: target: {
-            enable = lib.mkEnableOption "configure ${target.description} with metis skills, agents, and commands";
-            skills = lib.mapAttrs (skill: description: {
-              enable = lib.mkEnableOption description;
-            }) skillDescriptions;
-          }) targets;
+          options.metis = lib.mapAttrs (
+            name: target:
+            {
+              enable = lib.mkEnableOption "configure ${target.description} with metis skills, agents, and commands";
+              skills = lib.mapAttrs (skill: description: {
+                enable = lib.mkEnableOption description;
+              }) skillDescriptions;
+            }
+            // lib.optionalAttrs (name == "opencode") {
+              config = lib.mkOption {
+                type = lib.types.attrs;
+                default = { };
+                description = "opencode configuration rendered to opencode.json; must be serializable as JSON";
+              };
+            }
+          ) targets;
 
           config = lib.mkMerge (
             lib.mapAttrsToList (
               name: target: lib.mkIf cfg.${name}.enable { home.file = homeFiles name target; }
             ) targets
+            ++ [
+              (lib.mkIf (cfg.opencode.enable && cfg.opencode.config != { }) {
+                home.file.".config/opencode/opencode.json".text = builtins.toJSON (
+                  { "$schema" = "https://opencode.ai/config.json"; } // cfg.opencode.config
+                );
+              })
+              (lib.mkIf (cfg.opencode.enable && (cfg.opencode.config.lsp or false) != false) {
+                home.packages = settings.lspPackages;
+              })
+            ]
           );
         };
     }
