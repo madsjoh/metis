@@ -48,6 +48,10 @@ MANDATORY: Use GNU-style explicit long options over abbreviated ones in all comm
 - Do not alias core commands in Nix configuration without explicit user approval.
 - Examples: do not alias `ls` to `eza` or `cat` to `bat` unless the user asks for it.
 
+## Tools
+
+When a required command or tool is missing, load the `run-tools` skill before improvising. That skill resolves the tool in this order: use the command when it is already present, then use Nix shell when Nix is available, then fall back to Podman or Docker.
+
 ## Terminology
 
 Do not use slang shorthand words.
