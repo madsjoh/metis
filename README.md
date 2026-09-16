@@ -92,7 +92,7 @@ Metis exposes a home-manager module (`metis.opencode.enable = true`) and a build
 | Path | Description |
 | --- | --- |
 | `core/commands/` | The `commit` and `pull-request` slash commands. |
-| `core/skills/` | The `git-commit` and `github-pull-request` skills. |
+| `core/skills/` | The `git-commit`, `github-pull-request`, and `run-tools` skills. |
 | `context.md` | Shared global instructions rendered to `AGENTS.md` or `CLAUDE.md`. |
 
 ## Function Reference
