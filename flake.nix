@@ -9,7 +9,7 @@
     # obra/superpowers: A complete software development workflow for coding agents.
     # https://github.com/obra/superpowers
     superpowers = {
-      url = "github:obra/superpowers/v6.2.0";
+      url = "github:obra/superpowers/v7.0.1";
       flake = false;
     };
 
