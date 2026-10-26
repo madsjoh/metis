@@ -87,19 +87,16 @@
               description = "opencode";
               directory = ".config/opencode";
               contextFile = "AGENTS.md";
-              plugins = true;
             };
             claude = {
               description = "Claude Code";
               directory = ".claude";
               contextFile = "CLAUDE.md";
-              plugins = false;
             };
             codex = {
               description = "Codex";
               directory = ".codex";
               contextFile = "AGENTS.md";
-              plugins = false;
             };
           };
 
@@ -123,9 +120,6 @@
               "${directory}/agents".source = "${rendered}/agents";
               "${directory}/commands".source = "${rendered}/commands";
               "${directory}/skills".source = "${rendered}/skills";
-            }
-            // lib.optionalAttrs target.plugins {
-              "${directory}/plugins".source = "${rendered}/plugins";
             };
         in
         {
@@ -151,9 +145,13 @@
               name: target: lib.mkIf cfg.${name}.enable { home.file = homeFiles name target; }
             ) targets
             ++ [
-              (lib.mkIf (cfg.opencode.enable && cfg.opencode.config != { }) {
+              (lib.mkIf cfg.opencode.enable {
                 home.file.".config/opencode/opencode.jsonc".text = builtins.toJSON (
-                  { "$schema" = "https://opencode.ai/config.json"; } // cfg.opencode.config
+                  {
+                    "$schema" = "https://opencode.ai/config.json";
+                    plugins = [ settings.superpowersSrc ];
+                  }
+                  // cfg.opencode.config
                 );
               })
               (lib.mkIf (cfg.opencode.enable && (cfg.opencode.config.lsp or false) != false) {

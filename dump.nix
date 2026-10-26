@@ -44,11 +44,9 @@ let
   commandCommands = lib.mapAttrsToList (renderFile "commands") settings.commands;
 
   contextCommand = ''cp ${builtins.toString settings.context} "$out/context.md"'';
-
-  pluginCommand = ''cp ${builtins.toString settings.superpowersPlugin} "$out/plugins/superpowers.js"'';
 in
 pkgs.runCommand "metis-generated" { } ''
-  mkdir --parents "$out/skills" "$out/agents" "$out/commands" "$out/plugins"
+  mkdir --parents "$out/skills" "$out/agents" "$out/commands"
 
   ${contextCommand}
 
@@ -59,8 +57,6 @@ pkgs.runCommand "metis-generated" { } ''
   ${lib.concatStringsSep "\n" mattPocockSkillCommands}
   ${lib.concatStringsSep "\n" agentCommands}
   ${lib.concatStringsSep "\n" commandCommands}
-
-  ${pluginCommand}
 
   chmod --recursive u+w "$out"
 ''
