@@ -34,16 +34,6 @@ in
   inherit superpowersSrc;
   inherit vercelSkillsSrc;
 
-  # The superpowers plugin registers the skills directory and injects the
-  # using-superpowers bootstrap. Rewrite its `../../skills` lookup to `../skills`
-  # for the flattened `~/.config/opencode` layout.
-  superpowersPlugin = pkgs.writeText "superpowers.js" (
-    builtins.replaceStrings
-      [ "path.resolve(__dirname, '../../skills')" ]
-      [ "path.resolve(__dirname, '../skills')" ]
-      (builtins.readFile (superpowersSrc + "/.opencode/plugins/superpowers.js"))
-  );
-
   # Shared global instructions rendered to each agent's user level rules file.
   # opencode renders this to AGENTS.md and claude-code renders it to CLAUDE.md.
   context = basePath + "/context.md";
